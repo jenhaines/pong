@@ -17,34 +17,76 @@
   <div class="container">
     <div class="starter-template">
       <h1>PONG</h1>
-      <canvas id="canvas" width="800" height="600">
+      <canvas id="canvas" width="800" height="600" style="background-color: #339966">
         Sorry, your browser doesn't support the &lt;canvas&gt; element.
       </canvas>
-      <script> 
-        var ctx = $('#canvas')[0].getContext("2d");
+      <script>
+      window.onload = render;
 
-        function make_court(){
-          ctx.fillStyle = "#000";
-          ctx.fillRect(0, 0, 800, 600);
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(400, 10, 10, 580);
+        function Rect(x, y, width, height, color){
+          this.x = x;
+          this.y = y;
+          this.width = width;
+          this.height = height;
+          this.color = color;
+          this.render = function(){
+            var c = document.getElementById('canvas'); 
+            var ctx = canvas.getContext('2d');                    
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+          }
         }
-        function make_ball(){
-          ctx.arc(300, 300, 8, 0, Math.PI*2, true); 
-          ctx.fill();
+
+        function net(){
+          this.x = 400;
+          this.y = 10;
+          this.width = 10;
+          this.height = 580;
+          this.color = "#fff";
         }
-        function make_paddles (){
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(40, 250, 10, 80);
-          ctx.fillRect(760, 250, 10, 80);
+        net.prototype = new Rect();
+
+        function ball(){
+          this.x = 300;
+          this.y = 300;
+          this.width = 8;
+          this.height = 8;
+          this.color = "#fff";
         }
+
+        ball.prototype = new Rect();
+
+        function leftPaddle(){
+          this.x = 40;
+          this.y = 250;
+          this.width = 10;
+          this.height = 80;
+          this.color = "#fff";
+        }
+
+        leftPaddle.prototype = new Rect();
+
+        function rightPaddle(){
+          this.x = 760;
+          this.y = 250;
+          this.width = 10;
+          this.height = 80;
+          this.color = "#fff";
+        }
+
+        rightPaddle.prototype = new Rect();
+
+        var nt = new net();
+        var lp = new leftPaddle();
+        var rp = new rightPaddle();
+        var bl = new ball();
+
         function render(){
-          make_court();
-          make_paddles();
-          make_ball();
+          nt.render();
+          lp.render();
+          rp.render();
+          bl.render();
         }
-
-        render();
 
       </script>
     </div>
