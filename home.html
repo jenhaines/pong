@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pong</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+  <script src="scripts/app.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <p class="navbar-brand">PONG</p>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="starter-template">
+      <h1>PONG</h1>
+      <canvas id="canvas" width="800" height="600">
+        Sorry, your browser doesn't support the &lt;canvas&gt; element.
+      </canvas>
+      <script> 
+        var ballr = 10;
+        var rowcolors = ["#FF1C0A", "#FFFD0A", "#00A308", "#0008DB", "#EB0093"];
+        var paddlecolor = "#FFFFFF";
+        var ballcolor = "#FFFFFF";
+        var backcolor = "#000000";
+
+        function draw() {
+          ctx.fillStyle = backcolor;
+          clear();
+          ctx.fillStyle = ballcolor;
+          circle(x, y, ballr);
+
+          if (rightDown) paddlex += 5;
+          else if (leftDown) paddlex -= 5;
+          ctx.fillStyle = paddlecolor;
+          rect(paddlex, HEIGHT-paddleh, paddlew, paddleh);
+
+          drawbricks();
+
+          //want to learn about real collision detection? go read
+          // http://www.metanetsoftware.com/technique/tutorialA.html
+          rowheight = BRICKHEIGHT + PADDING;
+          colwidth = BRICKWIDTH + PADDING;
+          row = Math.floor(y/rowheight);
+          col = Math.floor(x/colwidth);
+          //reverse the ball and mark the brick as broken
+          if (y < NROWS * rowheight && row >= 0 && col >= 0 && bricks[row][col] == 1) {
+            dy = -dy;
+            bricks[row][col] = 0;
+          }
+         
+          if (x + dx + ballr > WIDTH || x + dx - ballr < 0)
+            dx = -dx;
+
+          if (y + dy - ballr < 0)
+            dy = -dy;
+          else if (y + dy + ballr > HEIGHT - paddleh) {
+            if (x > paddlex && x < paddlex + paddlew) {
+              //move the ball differently based on where it hit the paddle
+              dx = 8 * ((x-(paddlex+paddlew/2))/paddlew);
+              dy = -dy;
+            }
+            else if (y + dy + ballr > HEIGHT)
+              clearInterval(intervalId);
+          }
+         
+          x += dx;
+          y += dy;
+        }
+
+        init();
+        initbricks();
+
+      </script>
+    </div>
+    <div class="starter-template">
+      <button class="btn btn-warning" onClick="window.location.reload()">Restart</button>
+    </div>
+  </div>
+</body>
+</html>
