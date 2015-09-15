@@ -1,96 +1,139 @@
-var x = 25;
-var y = 250;
-var dx = 1.5;
-var dy = -4;
-var ctx;
-var WIDTH;
-var HEIGHT;
-var paddlex;
-var paddleh = 10;
-var paddlew = 75;
-var rightDown = false;
-var leftDown = false;
-var canvasMinX = 0;
-var canvasMaxX = 0;
-var intervalId = 0;
-var bricks;
-var NROWS = 5;
-var NCOLS = 5;
-var BRICKWIDTH;
-var BRICKHEIGHT = 15;
-var PADDING = 1;
+var animate = window.requestAnimationFrame ||
+   window.webkitRequestAnimationFrame ||
+   window.mozRequestAnimationFrame ||
+   window.oRequestAnimationFrame ||
+   window.msRequestAnimationFrame ||
+   function(callback) { window.setTimeout(callback, 1000/60)};
 
-function init() {
-  ctx = $('#canvas')[0].getContext("2d");
-  WIDTH = $("#canvas").width();
-  HEIGHT = $("#canvas").height();
-  paddlex = WIDTH / 2;
-  BRICKWIDTH = (WIDTH/NCOLS) - 1;
-  canvasMinX = $("#canvas").offset().left;
-  canvasMaxX = canvasMinX + WIDTH;
-  intervalId = setInterval(draw, 10);
-}
+window.onload = function(){
+ animate(step);
+};
 
-function circle(x,y,r) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI*2, true);
-  ctx.closePath();
-  ctx.fill();
-}
+var step = function(){
+ update();
+ render();
+ animate(step);
+};
 
-function rect(x,y,w,h) {
-  ctx.beginPath();
-  ctx.rect(x,y,w,h);
-  ctx.closePath();
-  ctx.fill();
-}
+var update = function(){
+};
 
-function clear() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  rect(0,0,WIDTH,HEIGHT);
-}
 
-function onKeyDown(evt) {
-  if (evt.keyCode == 39) rightDown = true;
-  else if (evt.keyCode == 37) leftDown = true;
-}
+var c = document.getElementById('canvas');
+var width = 600;
+var height = 500;
+c.width = width;
+c.height = height; 
+var ctx = c.getContext('2d'); 
 
-function onKeyUp(evt) {
-  if (evt.keyCode == 39) rightDown = false;
-  else if (evt.keyCode == 37) leftDown = false;
-}
+ function Paddle(x, y, width, height){
+   this.x = x;
+   this.y = y;
+   this.width = width;
+   this.height = height;
+   this.speed = 0;
+   // this.color = color;
+ }
+  Paddle.prototype.render = function(){
+     ctx.fillStyle = "#0000FF";
+     ctx.fillRect(this.x, this.y, this.width, this.height);
+   };
 
-$(document).keydown(onKeyDown);
-$(document).keyup(onKeyUp);
+ function PlayerOne(){
+   this.paddle = new Paddle(40, 250, 10, 80);
+ }
 
-function onMouseMove(evt) {
-  if (evt.pageX > canvasMinX && evt.pageX < canvasMaxX) {
-    paddlex = Math.max(evt.pageX - canvasMinX - (paddlew/2), 0);
-    paddlex = Math.min(WIDTH - paddlew, paddlex);
-  }
-}
+ function PlayerTwo(){
+   this.paddle = new Paddle(500, 250, 10, 80);
+ }
 
-$(document).mousemove(onMouseMove);
+ PlayerOne.prototype.render = function(){
+   this.paddle.render();
+ };
 
-function initbricks() {
-    bricks = new Array(NROWS);
-    for (i=0; i < NROWS; i++) {
-        bricks[i] = new Array(NCOLS);
-        for (j=0; j < NCOLS; j++) {
-            bricks[i][j] = 1;
-        }
-    }
-}
+ PlayerTwo.prototype.render = function(){
+   this.paddle.render();
+ };
 
-function drawbricks() {
-  for (i=0; i < NROWS; i++) {
-    ctx.fillStyle = rowcolors[i];
-    for (j=0; j < NCOLS; j++) {
-      if (bricks[i][j] == 1) {
-        rect((j * (BRICKWIDTH + PADDING)) + PADDING, 
-             (i * (BRICKHEIGHT + PADDING)) + PADDING,
-             BRICKWIDTH, BRICKHEIGHT);
-      }
-    }
-  }
-}
+ var keysDown = {};
+
+ window.addEventListener("keydown", function(event){
+   keysDown[event.keyCode] = true;
+ });
+
+ window.addEventListener("keyup", function(event){
+   delete keysDown[event.keyCode];
+ });
+
+ PlayerOne.prototype.update = function(){
+   for(var key in keysDown ){
+     var value = Number(key);
+       if(value == 37) { // left arrow 
+         this.paddle.move(-4);
+       } else if (value == 39){ // right arrow
+         this.paddle.move(4);
+       } else {
+         this.paddle.move(0);
+       }
+   }
+ };
+
+ PlayerTwo.prototype.update = function(){
+   for(var key in keysDown ){
+     var value = Number(key);
+       if(value == 188) { // left arrow 
+         this.paddle.move(-4);
+       } else if (value == 190){ // right arrow
+         this.paddle.move(4);
+       } else {
+         this.paddle.move(0);
+       }
+   }
+ };
+
+
+ Paddle.prototype.move = function(y) {
+   this.y += y;
+   this.speed = y;
+   if(this.y < 0) {
+     this.y = 0;
+     this.speed = 0;
+   } else if (this.y + this.height > 500) {
+     this.y = 500 - this.height;
+     this.speed = 0;
+   }
+ };
+
+ function Ball(x, y){
+   this.x = x;
+   this.y = y;
+   this.x_speed = 0;
+   this.y_speed = 3;
+   this.width = 8;
+   this.height = 8;
+ };
+
+ Ball.prototype.render = function(){
+   ctx.rect(this.x, this.y, this.width, this.height);
+   ctx.fillStyle = "#fff";
+   ctx.fill();
+ };
+
+ var playerone = new PlayerOne();
+ var playertwo = new PlayerTwo();
+ var ball = new Ball(200, 300);
+
+ var render = function(){
+   ctx.fillStyle = "#339966";
+   ctx.fillRect(0, 0, width, height);
+   ctx.fillStyle = "#FFF"
+   ctx.fillRect(300, 10, 4, 480);
+   playerone.render();
+   playertwo.render();
+   ball.render();
+ };
+
+ var update = function(){
+   playerone.update();
+   playertwo.update();
+ };

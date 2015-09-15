@@ -17,93 +17,9 @@
   <div class="container">
     <div class="starter-template">
       <h1>PONG</h1>
-      <canvas id="canvas" width="800" height="600" style="background-color: #339966">
-        Sorry, your browser doesn't support the &lt;canvas&gt; element.
-      </canvas>
-      <script>
+      <canvas id="canvas"></canvas>
+      <script src="scripts/app.js"></script>
 
-      var c = document.getElementById('canvas'); 
-      var ctx = canvas.getContext('2d'); 
-
-        function Rect(x, y, width, height, color){
-          this.x = x;
-          this.y = y;
-          this.width = width;
-          this.height = height;
-          this.color = color;
-          this.render = function(){                   
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-          }
-        }
-
-        function net(){
-          this.x = 400;
-          this.y = 10;
-          this.width = 10;
-          this.height = 580;
-          this.color = "#fff";
-        }
-        net.prototype = new Rect();
-
-        function ball(){
-          this.x = 300;
-          this.y = 300;
-          this.width = 10;
-          this.height = 10;
-          this.color = "#fff";
-        }
-
-        ball.prototype = new Rect();
-
-        function leftPaddle(){
-          this.x = 40;
-          this.y = 250;
-          this.width = 10;
-          this.height = 80;
-          this.color = "#fff";
-        }
-
-        leftPaddle.prototype = new Rect();
-
-        function rightPaddle(){
-          this.x = 760;
-          this.y = 250;
-          this.width = 10;
-          this.height = 80;
-          this.color = "#fff";
-        }
-
-        rightPaddle.prototype = new Rect();
-
-        var nt = new net();
-        var lp = new leftPaddle();
-        var rp = new rightPaddle();
-        var bl = new ball();
-
-        function render(){
-          nt.render();
-          lp.render();
-          rp.render();
-          bl.render();
-        }
-
-        var animate = window.requestAnimationFrame ||
-                                window.webkitRequestAnimationFrame ||
-                                window.mozRequestAnimationFrame ||
-                                window.oRequestAnimationFrame ||
-                                window.msRequestAnimationFrame ||
-                                function(callback) { window.setTimeout(callback, 1000/60)};
-
-        function step(){
-          animate();
-          render();
-
-        }
-
-
-
-      </script>
     </div>
   </div>
 </body>
