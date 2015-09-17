@@ -44,7 +44,7 @@ var ctx = c.getContext('2d');
  }
 
  function PlayerTwo(){
-   this.paddle = new Paddle(500, 250, 10, 80);
+   this.paddle = new Paddle(550, 250, 10, 80);
  }
 
  PlayerOne.prototype.render = function(){
@@ -114,14 +114,53 @@ var ctx = c.getContext('2d');
  };
 
  Ball.prototype.render = function(){
+   ctx.beginPath();
    ctx.rect(this.x, this.y, this.width, this.height);
    ctx.fillStyle = "#fff";
    ctx.fill();
  };
 
+ Ball.prototype.update = function(){
+  this.x += this.x_speed;
+  this.y += this.y_speed;
+  var top_x = this.x - 5;
+  var top_y = this.y - 5;
+  var bottom_x = this.x + 5;
+  var bottom_y = this.y + 5;
+
+  if (this.y - 5 < 0) {
+      this.y = 5;
+      this.y_speed = -this.y_speed;
+  } else if (this.y + 5 > 500) {
+      this.y = 495;
+      this.y_speed = -this.y_speed;
+  }
+
+  if (this.x < 0 || this.x > 60) {
+      this.y_speed = 0;
+      this.x_speed = 3;
+      this.y = 0;
+      this.x = 0;
+  }
+
+  if (top_x > 300) {
+      if (top_x < (PlayerOne.x + PlayerOne.height) && bottom_x > PlayerOne.x && top_y < (PlayerOne.y + PlayerOne.width) && bottom_y > PlayerOne.y) {
+          this.x_speed = -3;
+          this.y_speed += (PlayerOne.y_speed / 2);
+          this.x += this.x_speed;
+      }
+  } else {
+      if (top_x < (PlayerTwo.x + PlayerTwo.height) && bottom_x > PlayerTwo.x && top_y < (PlayerTwo.y + PlayerTwo.width) && bottom_y > PlayerTwo.y) {
+          this.x_speed = 3;
+          this.y_speed += (PlayerTwo.y_speed / 2);
+          this.x += this.x_speed;
+      }
+  }
+ };
+
  var playerone = new PlayerOne();
  var playertwo = new PlayerTwo();
- var ball = new Ball(200, 300);
+ var ball = new Ball(300, 0);
 
  var render = function(){
    ctx.fillStyle = "#339966";
@@ -136,4 +175,5 @@ var ctx = c.getContext('2d');
  var update = function(){
    playerone.update();
    playertwo.update();
+   ball.update();
  };
