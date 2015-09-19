@@ -11,8 +11,8 @@ var height = 600;
 c.width = width;
 c.height = height; 
 var ctx = c.getContext('2d'); 
-var playerone = new PlayerOne();
-var playertwo = new PlayerTwo();
+var computer = new Computer();
+var player = new Player();
 var ball = new Ball(400, 300);
 
 var keysDown = {};
@@ -26,15 +26,15 @@ var render = function(){
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = "#FFF"
   ctx.fillRect(400, 10, 4, 580);
-  playerone.render();
-  playertwo.render();
+  computer.render();
+  player.render();
   ball.render();
 };
 
 var update = function(){
-  playerone.update();
-  playertwo.update();
-  ball.update(playerone.paddle, playertwo.paddle);
+  computer.update();
+  player.update();
+  ball.update(computer.paddle, player.paddle);
 };
 
 
@@ -71,36 +71,39 @@ Paddle.prototype.move = function(x, y) {
     }
   };
 
- function PlayerOne(){
+ function Computer(){
    this.paddle = new Paddle(50, 250, 10, 80);
  }
 
- function PlayerTwo(){
+ function Player(){
    this.paddle = new Paddle(750, 250, 10, 80);
  }
 
- PlayerOne.prototype.render = function(){
+ Computer.prototype.render = function(){
    this.paddle.render();
  };
 
- PlayerTwo.prototype.render = function(){
+ Player.prototype.render = function(){
    this.paddle.render();
  };
 
- PlayerOne.prototype.update = function(){
-   for(var key in keysDown ){
-     var value = Number(key);
-       if(value == 37) { // left arrow 
-         this.paddle.move(0, 4);
-       } else if (value == 39){ // right arrow
-         this.paddle.move(0, -4);
-       } else {
-         this.paddle.move(0, 0);
-       }
-   }
+ Computer.prototype.update = function(){
+  var y_pos = ball.y;
+    var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
+    if(diff < 0 && diff < -4) { // max speed left
+      diff = -5;
+    } else if(diff > 0 && diff > 4) { // max speed right
+      diff = 5;
+    }
+    this.paddle.move(0,diff);
+    if(this.paddle.y < 0) {
+      this.paddle.y = 0;
+    } else if (this.paddle.y + this.paddle.height > 600) {
+      this.paddle.y = 600 - this.paddle.height;
+    }
  };
 
- PlayerTwo.prototype.update = function(){
+ Player.prototype.update = function(){
    for(var key in keysDown ){
      var value = Number(key);
        if(value == 188) { // left arrow 
