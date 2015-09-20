@@ -15,6 +15,10 @@ var computer = new Computer();
 var player = new Player();
 var ball = new Ball(400, 300);
 
+var pause = function(){
+  ;
+};
+
 var keysDown = {};
 
 window.onload = function(){
@@ -50,12 +54,11 @@ var step = function(){
    this.width = width;
    this.height = height;
    this.speed = 0;
-   // this.color = color;
  }
 Paddle.prototype.render = function(){
-     ctx.fillStyle = "#0000FF";
-     ctx.fillRect(this.x, this.y, this.width, this.height);
-  };
+   ctx.fillStyle = "#0000FF";
+   ctx.fillRect(this.x, this.y, this.width, this.height);
+};
 
 Paddle.prototype.move = function(x, y) {
     this.x += x;
@@ -72,11 +75,11 @@ Paddle.prototype.move = function(x, y) {
   };
 
  function Computer(){
-   this.paddle = new Paddle(50, 250, 10, 80);
+   this.paddle = new Paddle(80, 250, 10, 80);
  }
 
  function Player(){
-   this.paddle = new Paddle(750, 250, 10, 80);
+   this.paddle = new Paddle(720, 250, 10, 80);
  }
 
  Computer.prototype.render = function(){
@@ -90,9 +93,9 @@ Paddle.prototype.move = function(x, y) {
  Computer.prototype.update = function(){
   var y_pos = ball.y;
     var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
-    if(diff < 0 && diff < -4) { // max speed left
+    if(diff < 0 && diff < -4) { // max speed up
       diff = -5;
-    } else if(diff > 0 && diff > 4) { // max speed right
+    } else if(diff > 0 && diff > 4) { // max speed down
       diff = 5;
     }
     this.paddle.move(0,diff);
@@ -106,9 +109,9 @@ Paddle.prototype.move = function(x, y) {
  Player.prototype.update = function(){
    for(var key in keysDown ){
      var value = Number(key);
-       if(value == 188) { // left arrow 
+       if(value == 37) { // left arrow 
          this.paddle.move(0, -4);
-       } else if (value == 190){ // right arrow
+       } else if (value == 39){ // right arrow
          this.paddle.move(0, 4);
        } else {
          this.paddle.move(0, 0);
