@@ -1,60 +1,182 @@
-var animate = window.requestAnimationFrame ||
-   window.webkitRequestAnimationFrame ||
-   window.mozRequestAnimationFrame ||
-   window.oRequestAnimationFrame ||
-   window.msRequestAnimationFrame ||
-   function(callback) { window.setTimeout(callback, 1000/60)};
+window.requestAnimFrame = (function(){
+  return window.requestAnimationFrame ||
+  function(callback){
+    return window.setTimeout(callback, 1000 / 60);
+  };
+})();
+
+window.cancelRequestAnimFrame = (function(){
+  return window.cancelAnimationFrame ||
+  clearTimeout
+})();
+  
 
 var c = document.getElementById('canvas');
-var width = 800;
-var height = 600;
-c.width = width;
-c.height = height; 
 var ctx = c.getContext('2d'); 
+
+var W = window.innerWidth;
+var H = window.innerHeight;
+var cw = 800;
+var ch = 600;
+c.width = cw;
+c.height = ch;
+// var mouse = {}; // Mouse object to store it's current position
+var points = 0;
+var over = 0;
+var rect = c.getBoundingClientRect();
+
+c.addEventListener("mousedown", btnClick, true);
+
+// Start Button object
+var startBtn = {
+  w: 100,
+  h: 50,
+  x: cw/2 - 50,
+  y: ch/2 - 25,
+
+  draw: function(){
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = "2";
+    ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+    ctx.font = "18px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+    ctx.fillText("Start", cw/2, ch/2 );
+  }
+};
+
+restartBtn = {
+  w: 100,
+  h: 50,
+  x: cw/2 - 50,
+  y: ch/2 - 25,
+
+  draw: function() {
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = "2";
+    ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+    ctx.font = "18px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStlye = "white";
+    ctx.fillText("Restart", cw/2, ch/2);
+  }
+};
+// On button click (Restart and start)
+function btnClick(e) {
+  // Variables for storing mouse position on click
+  var mx = e.pageX - rect.left;
+  var my = e.pageY - rect.top;
+  // Click start button
+  if(mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
+    requestAnimFrame(step);
+
+    // Delete the start button after clicking it
+    startBtn = {};
+  }
+
+  // If the game is over, and the restart button is clicked
+  if(over == 1) {
+    if(mx >= restartBtn.x && mx <= restartBtn.x + restartBtn.w) {
+        ball.x = 20;
+        ball.y = 20;
+        points = 0;
+        ball.vx = 4;
+        ball.vy = 8;
+        requestAnimFrame(step);
+
+        over = 0;
+    }
+  }
+}
+
+
 var computer = new Computer();
 var player = new Player();
 var ball = new Ball(400, 300);
 
-var pause = function(){
-  ;
-};
-
 var keysDown = {};
 
-window.onload = function(){
- animate(step);
+// window.onload = function(){
+//  requestAnimFrame(step);
+// };
+
+var paintCanvas = function(){
+  ctx.fillStyle = "#339966";
+  ctx.fillRect(0, 0, W, H);
 };
 
-var render = function(){
-  ctx.fillStyle = "#339966";
-  ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = "#FFF"
+var drawNet = function(){
+  ctx.fillStyle = "#FFF";
   ctx.fillRect(400, 10, 4, 580);
-  computer.render();
-  player.render();
-  ball.render();
 };
 
 var update = function(){
   computer.update();
   player.update();
   ball.update(computer.paddle, player.paddle);
+  updateScore();
+};
+
+var render = function(){
+  paintCanvas();
+  drawNet();
+  computer.render();
+  player.render();
+  ball.render();
 };
 
 
-var step = function(){
- update();
- render();
- animate(step);
-};
+function step(){
+  render();
+  update();
+  requestAnimFrame(step);
+}
 
- function Paddle(x, y, width, height){
-   this.x = x;
-   this.y = y;
-   this.width = width;
-   this.height = height;
-   this.speed = 0;
- }
+function startScreen(){
+  paintCanvas();
+  startBtn.draw();
+}
+
+function Paddle(x, y, width, height){
+ this.x = x;
+ this.y = y;
+ this.width = width;
+ this.height = height;
+ this.speed = 0;
+}
+
+// Function for updating score
+function updateScore() {
+  ctx.fillStyle = "white";
+  ctx.font = "16px Arial, sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillText("Score: " + points, 20, 20 );
+}
+
+function gameOver() {
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Game Over - You scored "+points+" points!", cw/2, ch/2 + 50 );
+
+  // Stop the Animation
+  cancelRequestAnimFrame(step);
+
+  // Set the over flag
+  over = 1;
+
+  // Show the restart button
+  restartBtn.draw();
+}
+
+
+
 Paddle.prototype.render = function(){
    ctx.fillStyle = "#0000FF";
    ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -126,7 +248,7 @@ Paddle.prototype.move = function(x, y) {
    this.y_speed = 1;
    this.width = 10;
    this.height = 10;
- };
+ }
 
  Ball.prototype.render = function(){
    ctx.beginPath();
@@ -151,12 +273,25 @@ Paddle.prototype.move = function(x, y) {
       this.y_speed = -this.y_speed;
   }
 
-  if (this.x < 0 || this.x > 800) {
-      this.x_speed = 3;
-      this.y_speed = 1;
-      this.y = 300;
-      this.x = 400;
+  if (this.x < 0){
+    points++;
+    this.x_speed = 3;
+    this.y_speed = 1;
+    this.y = 300;
+    this.x = 400;
   }
+
+  if (this.x > 800){
+    gameOver();
+  }
+
+  // if (this.x < 0 || this.x > 800) {
+  //     if (this.x < 0) points++ ;
+  //     this.x_speed = 3;
+  //     this.y_speed = 1;
+  //     this.y = 300;
+  //     this.x = 400;
+  // }
   if (top_x > 400) {
       if (top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
           this.x_speed = -3;
@@ -179,3 +314,8 @@ Paddle.prototype.move = function(x, y) {
  window.addEventListener("keyup", function(event){
    delete keysDown[event.keyCode];
  });
+ 
+ startScreen();
+
+
+
