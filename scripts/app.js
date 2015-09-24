@@ -20,7 +20,6 @@ var cw = 800;
 var ch = 600;
 c.width = cw;
 c.height = ch;
-// var mouse = {}; // Mouse object to store it's current position
 var points = 0;
 var over = 0;
 var rect = c.getBoundingClientRect();
@@ -47,13 +46,15 @@ var startBtn = {
   }
 };
 
-restartBtn = {
+var restartBtn = {
   w: 100,
   h: 50,
   x: cw/2 - 50,
   y: ch/2 - 25,
 
   draw: function() {
+    Net = {};
+
     ctx.strokeStyle = "white";
     ctx.lineWidth = "2";
     ctx.strokeRect(this.x, this.y, this.w, this.h);
@@ -65,6 +66,29 @@ restartBtn = {
     ctx.fillText("Restart", cw/2, ch/2);
   }
 };
+
+var Net = {
+  x: 400,
+  y: 10,
+  nw: 4,
+  nh: 580,
+    draw: function(){
+    ctx.fillStyle = "#FFF";
+    ctx.fillRect(this.x, this.y, this.nw, this.nh);
+  }
+};
+
+var Court = {
+  x: 0,
+  y: 0,
+  cw: W,
+  ch: H,
+  draw: function(){
+    ctx.fillStyle = "#339966";
+    ctx.fillRect(this.x, this.y, this.cw, this.ch);
+  }
+};
+
 // On button click (Restart and start)
 function btnClick(e) {
   // Variables for storing mouse position on click
@@ -72,7 +96,7 @@ function btnClick(e) {
   var my = e.pageY - rect.top;
   // Click start button
   if(mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
-    requestAnimFrame(step);
+    step();
 
     // Delete the start button after clicking it
     startBtn = {};
@@ -86,7 +110,7 @@ function btnClick(e) {
         points = 0;
         ball.vx = 4;
         ball.vy = 8;
-        requestAnimFrame(step);
+        step();
 
         over = 0;
     }
@@ -100,20 +124,6 @@ var ball = new Ball(400, 300);
 
 var keysDown = {};
 
-// window.onload = function(){
-//  requestAnimFrame(step);
-// };
-
-var paintCanvas = function(){
-  ctx.fillStyle = "#339966";
-  ctx.fillRect(0, 0, W, H);
-};
-
-var drawNet = function(){
-  ctx.fillStyle = "#FFF";
-  ctx.fillRect(400, 10, 4, 580);
-};
-
 var update = function(){
   computer.update();
   player.update();
@@ -122,8 +132,8 @@ var update = function(){
 };
 
 var render = function(){
-  paintCanvas();
-  drawNet();
+  Court.draw();
+  Net.draw();
   computer.render();
   player.render();
   ball.render();
@@ -131,13 +141,13 @@ var render = function(){
 
 
 function step(){
+  requestAnimFrame(step);
   render();
   update();
-  requestAnimFrame(step);
 }
 
 function startScreen(){
-  paintCanvas();
+  Court.draw();
   startBtn.draw();
 }
 
@@ -164,9 +174,9 @@ function gameOver() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("Game Over - You scored "+points+" points!", cw/2, ch/2 + 50 );
-
   // Stop the Animation
-  cancelRequestAnimFrame(step);
+  Net = {};
+  cancelRequestAnimFrame();
 
   // Set the over flag
   over = 1;
