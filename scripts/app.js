@@ -21,9 +21,10 @@ window.addEventListener("keyup", function(event){
 
 var c = document.getElementById('canvas');
 var ctx = c.getContext('2d');
-var sndCollide = document.getElementById('collide');
-var sndPongEnd = document.getElementById('pongEnd');
-var sndPaddleCollide = document.getElementById('paddleCollide');
+var sndCollide = new buzz.sound('sounds/pong.wav');
+var sndPaddleCollide = new buzz.sound('sounds/pong2.wav');
+var sndPongEnd = new buzz.sound('sounds/pongEnd.wav');
+var sndWinning = new buzz.sound('sounds/winning.wav');
 var W = window.innerWidth;
 var H = window.innerHeight;
 var cw = 800;
@@ -64,7 +65,6 @@ var restartBtn = {
   y: ch/2 - 25,
 
   draw: function() {
-    // Net = {};
 
     ctx.strokeStyle = "white";
     ctx.lineWidth = "2";
@@ -212,13 +212,13 @@ Paddle.prototype.move = function(x, y) {
   var bottom_y = this.y + 4;
 
   if (this.y - 10 < 0) {
-      sndCollide.play();
       this.y = 10;
       this.y_speed = -this.y_speed;
-  } else if (this.y + 10 > 600) {
       sndCollide.play();
+  } else if (this.y + 10 > 600) {
       this.y = 590;
       this.y_speed = -this.y_speed;
+      sndCollide.play();
   }
 
   if (this.x < 0){
@@ -227,6 +227,7 @@ Paddle.prototype.move = function(x, y) {
     this.y_speed = 1;
     this.y = 300;
     this.x = 400;
+    sndWinning.play();
   }
 
   if (this.x > 800){
@@ -235,22 +236,23 @@ Paddle.prototype.move = function(x, y) {
 
   if (top_x > 400) {
       if (top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
-          sndPaddleCollide.play();
           this.x_speed = -3;
           this.y_speed += (paddle2.y_speed / 2);
           this.x += this.x_speed;
+          sndPaddleCollide.play();
       }
   } else {
       if (top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x && top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y) {
-          sndPaddleCollide.play();
           this.x_speed = 3;
           this.y_speed += (paddle1.y_speed / 2);
           this.x += this.x_speed;
+          sndPaddleCollide.play();
       }
   }
  };
 
  function gameOver() {
+    sndPongEnd.play();
    ctx.fillStyle = "white";
    ctx.font = "20px Arial, sans-serif";
    ctx.textAlign = "center";
@@ -259,7 +261,6 @@ Paddle.prototype.move = function(x, y) {
    // Stop the Animation
    // Net = {};
    cancelRequestAnimFrame(init);
-    pongEnd.play();
 
    // Set the over flag
    over = 1;
