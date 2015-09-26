@@ -302,6 +302,7 @@ par.radius = Math.max(par.radius - 0.05, 0.0);
 
 }
 }
+//IMPORTANT
 // Function for updating score
 function updateScore() {
 ctx.fillStlye = "white";

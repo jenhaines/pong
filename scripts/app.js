@@ -9,17 +9,28 @@ window.cancelRequestAnimFrame = (function(){
   return window.cancelAnimationFrame ||
   clearTimeout
 })();
+
+window.addEventListener("keydown", function(event){
+  keysDown[event.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(event){
+  delete keysDown[event.keyCode];
+});
   
 
 var c = document.getElementById('canvas');
-var ctx = c.getContext('2d'); 
-
+var ctx = c.getContext('2d');
+var sndCollide = document.getElementById('collide');
+var sndPongEnd = document.getElementById('pongEnd');
+var sndPaddleCollide = document.getElementById('paddleCollide');
 var W = window.innerWidth;
 var H = window.innerHeight;
 var cw = 800;
 var ch = 600;
 c.width = cw;
 c.height = ch;
+var init;
 var points = 0;
 var over = 0;
 var rect = c.getBoundingClientRect();
@@ -53,7 +64,7 @@ var restartBtn = {
   y: ch/2 - 25,
 
   draw: function() {
-    Net = {};
+    // Net = {};
 
     ctx.strokeStyle = "white";
     ctx.lineWidth = "2";
@@ -89,67 +100,11 @@ var Court = {
   }
 };
 
-// On button click (Restart and start)
-function btnClick(e) {
-  // Variables for storing mouse position on click
-  var mx = e.pageX - rect.left;
-  var my = e.pageY - rect.top;
-  // Click start button
-  if(mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
-    step();
-
-    // Delete the start button after clicking it
-    startBtn = {};
-  }
-
-  // If the game is over, and the restart button is clicked
-  if(over == 1) {
-    if(mx >= restartBtn.x && mx <= restartBtn.x + restartBtn.w) {
-        ball.x = 20;
-        ball.y = 20;
-        points = 0;
-        ball.vx = 4;
-        ball.vy = 8;
-        step();
-
-        over = 0;
-    }
-  }
-}
-
-
 var computer = new Computer();
 var player = new Player();
 var ball = new Ball(400, 300);
 
 var keysDown = {};
-
-var update = function(){
-  computer.update();
-  player.update();
-  ball.update(computer.paddle, player.paddle);
-  updateScore();
-};
-
-var render = function(){
-  Court.draw();
-  Net.draw();
-  computer.render();
-  player.render();
-  ball.render();
-};
-
-
-function step(){
-  requestAnimFrame(step);
-  render();
-  update();
-}
-
-function startScreen(){
-  Court.draw();
-  startBtn.draw();
-}
 
 function Paddle(x, y, width, height){
  this.x = x;
@@ -167,25 +122,6 @@ function updateScore() {
   ctx.textBaseline = "top";
   ctx.fillText("Score: " + points, 20, 20 );
 }
-
-function gameOver() {
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("Game Over - You scored "+points+" points!", cw/2, ch/2 + 50 );
-  // Stop the Animation
-  Net = {};
-  cancelRequestAnimFrame();
-
-  // Set the over flag
-  over = 1;
-
-  // Show the restart button
-  restartBtn.draw();
-}
-
-
 
 Paddle.prototype.render = function(){
    ctx.fillStyle = "#0000FF";
@@ -276,9 +212,11 @@ Paddle.prototype.move = function(x, y) {
   var bottom_y = this.y + 4;
 
   if (this.y - 10 < 0) {
+      sndCollide.play();
       this.y = 10;
       this.y_speed = -this.y_speed;
   } else if (this.y + 10 > 600) {
+      sndCollide.play();
       this.y = 590;
       this.y_speed = -this.y_speed;
   }
@@ -295,21 +233,16 @@ Paddle.prototype.move = function(x, y) {
     gameOver();
   }
 
-  // if (this.x < 0 || this.x > 800) {
-  //     if (this.x < 0) points++ ;
-  //     this.x_speed = 3;
-  //     this.y_speed = 1;
-  //     this.y = 300;
-  //     this.x = 400;
-  // }
   if (top_x > 400) {
       if (top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
+          sndPaddleCollide.play();
           this.x_speed = -3;
           this.y_speed += (paddle2.y_speed / 2);
           this.x += this.x_speed;
       }
   } else {
       if (top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x && top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y) {
+          sndPaddleCollide.play();
           this.x_speed = 3;
           this.y_speed += (paddle1.y_speed / 2);
           this.x += this.x_speed;
@@ -317,13 +250,78 @@ Paddle.prototype.move = function(x, y) {
   }
  };
 
- window.addEventListener("keydown", function(event){
-   keysDown[event.keyCode] = true;
- });
+ function gameOver() {
+   ctx.fillStyle = "white";
+   ctx.font = "20px Arial, sans-serif";
+   ctx.textAlign = "center";
+   ctx.textBaseline = "middle";
+   ctx.fillText("Game Over - You scored "+points+" points!", cw/2, ch/2 + 50 );
+   // Stop the Animation
+   // Net = {};
+   cancelRequestAnimFrame(init);
+    pongEnd.play();
 
- window.addEventListener("keyup", function(event){
-   delete keysDown[event.keyCode];
- });
+   // Set the over flag
+   over = 1;
+
+   // Show the restart button
+   restartBtn.draw();
+ }
+
+ // On button click (Restart and start)
+ function btnClick(e) {
+   // Variables for storing mouse position on click
+   var mx = e.pageX - rect.left;
+   var my = e.pageY - rect.top;
+   // Click start button
+   if(mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
+     step();
+
+     // Delete the start button after clicking it
+     startBtn = {};
+   }
+
+   // If the game is over, and the restart button is clicked
+   if(over == 1) {
+     if(mx >= restartBtn.x && mx <= restartBtn.x + restartBtn.w) {
+         ball.x = 20;
+         ball.y = 20;
+         points = 0;
+         ball.vx = 4;
+         ball.vy = 8;
+         step();
+
+         over = 0;
+     }
+   }
+ }
+
+ var update = function(){
+   computer.update();
+   player.update();
+   ball.update(computer.paddle, player.paddle);
+   updateScore();
+ };
+
+ var render = function(){
+   Court.draw();
+   computer.render();
+   player.render();
+   ball.render();
+ };
+
+
+
+ function step(){
+   init = requestAnimFrame(step);
+   render();
+   update();
+ }
+
+ function startScreen(){
+   Court.draw();   
+   startBtn.draw();
+ }
  
  startScreen();
 
