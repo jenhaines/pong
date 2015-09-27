@@ -166,9 +166,9 @@ Paddle.prototype.move = function(x, y) {
   var y_pos = ball.y;
     var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
     if(diff < 0 && diff < -4) { // max speed up
-      diff = -5;
+      diff = -3;
     } else if(diff > 0 && diff > 4) { // max speed down
-      diff = 5;
+      diff = 3;
     }
     this.paddle.move(0,diff);
     if(this.paddle.y < 0) {
@@ -181,10 +181,10 @@ Paddle.prototype.move = function(x, y) {
  Player.prototype.update = function(){
    for(var key in keysDown ){
      var value = Number(key);
-       if(value == 37) { // left arrow 
-         this.paddle.move(0, -4);
-       } else if (value == 39){ // right arrow
-         this.paddle.move(0, 4);
+       if(value == 38) { // left arrow 
+         this.paddle.move(0, -5);
+       } else if (value == 40){ // right arrow
+         this.paddle.move(0, 5);
        } else {
          this.paddle.move(0, 0);
        }
@@ -231,8 +231,7 @@ Paddle.prototype.move = function(x, y) {
     this.y_speed = 2;
     this.y = 300;
     this.x = 400;
-    sndWinning.play();
-    if(pointsP == 11) gameOver();
+    if(pointsP == 4) gameOver();
   }
 
   if (this.x > 800){
@@ -241,7 +240,7 @@ Paddle.prototype.move = function(x, y) {
     this.y_speed = 2;
     this.y = 300;
     this.x = 400;
-    if (pointsC == 11) gameOver();
+    if (pointsC == 4) gameOver();
   }
 
   if (top_x > 400) {
@@ -262,17 +261,28 @@ Paddle.prototype.move = function(x, y) {
  };
 
  function gameOver() {
-    sndPongEnd.play();
    ctx.fillStyle = "white";
    ctx.font = "20px Arial, sans-serif";
    ctx.textAlign = "center";
    ctx.textBaseline = "middle";
-   ctx.fillText("Game Over - You scored "+points+" points!", cw/2, ch/2 + 50 );
+   if (pointsP > pointsC){
+    displayText = 'You Won! ';
+    sndWinning.play();
+   }else{
+    displayText = 'You Lost! ';
+    sndPongEnd.play();
+   }
+
+   ctx.fillText("Game Over -  " + displayText + " - You scored " + pointsP + " points!", cw/2, ch/2 + 50 );
    // Stop the Animation
    cancelRequestAnimFrame(init);
 
    // Set the over flag
    over = 1;
+
+   //Reset score
+   pointsP = 0;
+   pointsC = 0;
 
    // Show the restart button
    restartBtn.draw();
@@ -299,7 +309,7 @@ Paddle.prototype.move = function(x, y) {
          ball.y = 300;
          points = 0;
          ball.x_speed = 4;
-         ball.y_speed = 8;
+         ball.y_speed = 3;
          // ball = new Ball(400, 300);
          step();
 
