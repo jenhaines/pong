@@ -1,3 +1,16 @@
+// load google font == Press Start 2P
+WebFontConfig = {
+  google:{ families: ['Press+Start+2P::latin'] },
+  active: function(){startScreen();},
+};
+(function(){
+  var wf = document.createElement("script");
+  wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+  wf.async = 'true';
+  document.head.appendChild(wf);
+})();
+
+
 window.requestAnimFrame = (function(){
   return window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
@@ -18,6 +31,10 @@ window.cancelRequestAnimFrame = (function(){
   clearTimeout
 })();
 
+var canvas=document.getElementById("canvas");
+var ctx=canvas.getContext("2d");
+var cw=canvas.width;
+var ch=canvas.height;
 var c = document.getElementById('canvas');
 var ctx = c.getContext('2d');
 var sndCollide = new buzz.sound('sounds/pong.wav');
@@ -47,7 +64,7 @@ window.addEventListener("keyup", function(event){
 
 // Start Button object
 var startBtn = {
-  w: 100,
+  w: 125,
   h: 50,
   x: cw/2 - 50,
   y: ch/2 - 25,
@@ -55,20 +72,20 @@ var startBtn = {
   draw: function(){
     ctx.strokeStyle = "white";
     ctx.lineWidth = "2";
-    ctx.strokeRect(350, 275, this.w, this.h);
+    ctx.strokeRect(335, 273, this.w, this.h);
 
-    ctx.font = "18px Arial, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "white";
+    ctx.font = "20px 'Press Start 2P'";
     ctx.fillText("Start", cw/2, ch/2 );
   }
 };
 
 var restartBtn = {
-  w: 100,
+  w: 150,
   h: 50,
-  x: cw/2 - 50,
+  x: cw/2 - 75,
   y: ch/2 - 25,
 
   draw: function() {
@@ -77,7 +94,7 @@ var restartBtn = {
     ctx.lineWidth = "2";
     ctx.strokeRect(this.x, this.y, this.w, this.h);
 
-    ctx.font = "18px Arial, sans-serif";
+    ctx.font = "20px 'Press Start 2P";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStlye = "white";
@@ -112,18 +129,11 @@ function Paddle(x, y, width, height){
 
 // Function for updating score
 function updateScore() {
-  //Draw a red line at y=100
-  // ctx.strokeStyle="red";
-  // ctx.moveTo(5,100);
-  // ctx.lineTo(395,100);
-  // ctx.stroke();
-  ctx.font = "64px Arial, sans-serif";
+  ctx.font = "64px 'Press Start 2P'";
+  // ctx.font = "64px Arial, sans-serif";
   ctx.textBaseline = "top";
-  
-  // ctx.fillStyle = "white";
   ctx.textAlign = "left";
   ctx.fillText(pointsC, 200, 10 );
-  // ctx.textAlign = "right";
   ctx.fillText(pointsP, 560, 10 );
 }
 
@@ -181,9 +191,9 @@ Paddle.prototype.move = function(x, y) {
  Player.prototype.update = function(){
    for(var key in keysDown ){
      var value = Number(key);
-       if(value == 38) { // left arrow 
+       if(value == 39) { // left arrow 
          this.paddle.move(0, -5);
-       } else if (value == 40){ // right arrow
+       } else if (value == 37){ // right arrow
          this.paddle.move(0, 5);
        } else {
          this.paddle.move(0, 0);
@@ -262,7 +272,7 @@ Paddle.prototype.move = function(x, y) {
 
  function gameOver() {
    ctx.fillStyle = "white";
-   ctx.font = "20px Arial, sans-serif";
+   ctx.font = "20px 'Press Start 2P";
    ctx.textAlign = "center";
    ctx.textBaseline = "middle";
    if (pointsP > pointsC){
@@ -273,16 +283,13 @@ Paddle.prototype.move = function(x, y) {
     sndPongEnd.play();
    }
 
-   ctx.fillText("Game Over -  " + displayText + " - You scored " + pointsP + " points!", cw/2, ch/2 + 50 );
+   ctx.fillText("Game Over -  " + displayText, cw/2, ch/2 + 50);
+   ctx.fillText("You scored " + pointsP + " points!", cw/2, ch/2 + 80 );
    // Stop the Animation
    cancelRequestAnimFrame(init);
 
    // Set the over flag
    over = 1;
-
-   //Reset score
-   pointsP = 0;
-   pointsC = 0;
 
    // Show the restart button
    restartBtn.draw();
@@ -293,7 +300,6 @@ Paddle.prototype.move = function(x, y) {
    // Variables for storing mouse position on click
    var mx = e.pageX - rect.left;
    var my = e.pageY - rect.top;
-   // console.log(mx + ' ' + my + ' startbtnY '+startBtn.y);
    // Click start button
    if((mx >= startBtn.x && mx <= startBtn.x + startBtn.w) && (my >= startBtn.y && my <= startBtn.y + startBtn.h)) {
      step();
@@ -305,13 +311,18 @@ Paddle.prototype.move = function(x, y) {
    // If the game is over, and the restart button is clicked
    if(over == 1) {
      if((mx >= restartBtn.x && mx <= restartBtn.x + restartBtn.w) && (my >= restartBtn.y && my <= restartBtn.y + restartBtn.h)) {
+        // If restart set random angle for bar
          ball.x = 400;
          ball.y = 300;
          points = 0;
          ball.x_speed = 4;
          ball.y_speed = 3;
-         // ball = new Ball(400, 300);
+         //Reset score
+         pointsP = 0;
+         pointsC = 0;
+
          step();
+
 
          over = 0;
      }
@@ -343,7 +354,3 @@ Paddle.prototype.move = function(x, y) {
    startBtn.draw();
  }
  
- startScreen();
-
-
-
