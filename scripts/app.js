@@ -70,15 +70,16 @@ var startBtn = {
   y: ch/2 - 25,
 
   draw: function(){
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = "2";
-    ctx.strokeRect(335, 273, this.w, this.h);
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "white";
-    ctx.font = "20px 'Press Start 2P'";
-    ctx.fillText("Start", cw/2, ch/2 );
+    with(ctx){
+      strokeStyle = "white";
+      lineWidth = "2";
+      strokeRect(335, 273, this.w, this.h);
+      textAlign = "center";
+      textBaseline = "middle";
+      fillStyle = "white";
+      font = "20px 'Press Start 2P'";
+      fillText("Start", cw/2, ch/2 );
+    }
   }
 };
 
@@ -89,16 +90,16 @@ var restartBtn = {
   y: ch/2 - 25,
 
   draw: function() {
-
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = "2";
-    ctx.strokeRect(this.x, this.y, this.w, this.h);
-
-    ctx.font = "20px 'Press Start 2P";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStlye = "white";
-    ctx.fillText("Restart", cw/2, ch/2);
+    with(ctx){
+      strokeStyle = "white";
+      lineWidth = "2";
+      strokeRect(this.x, this.y, this.w, this.h);
+      font = "20px 'Press Start 2P";
+      textAlign = "center";
+      textBaseline = "middle";
+      fillStlye = "white";
+      fillText("Restart", cw/2, ch/2);
+    }
   }
 };
 
@@ -129,12 +130,13 @@ function Paddle(x, y, width, height){
 
 // Function for updating score
 function updateScore() {
-  ctx.font = "64px 'Press Start 2P'";
-  // ctx.font = "64px Arial, sans-serif";
-  ctx.textBaseline = "top";
-  ctx.textAlign = "left";
-  ctx.fillText(pointsC, 200, 10 );
-  ctx.fillText(pointsP, 560, 10 );
+  with(ctx){
+    font = "64px 'Press Start 2P'";
+    textBaseline = "top";
+    textAlign = "left";
+    fillText(pointsC, 200, 10 );
+    fillText(pointsP, 560, 10 );
+  }
 }
 
 Paddle.prototype.render = function(){
@@ -205,16 +207,18 @@ Paddle.prototype.move = function(x, y) {
    this.x = x;
    this.y = y;
    this.x_speed = 3;
-   this.y_speed = 1;
+   this.y_speed = Math.floor((Math.random() * 6) + 1);
    this.width = 10;
    this.height = 10;
  }
 
  Ball.prototype.render = function(){
-   ctx.beginPath();
-   ctx.rect(this.x, this.y, this.width, this.height);
-   ctx.fillStyle = "#fff";
-   ctx.fill();
+  with(ctx){
+   beginPath();
+   rect(this.x, this.y, this.width, this.height);
+   fillStyle = "#fff";
+   fill();
+  }
  };
 
  Ball.prototype.update = function(paddle1, paddle2){
@@ -302,7 +306,7 @@ Paddle.prototype.move = function(x, y) {
    var my = e.pageY - rect.top;
    // Click start button
    if((mx >= startBtn.x && mx <= startBtn.x + startBtn.w) && (my >= startBtn.y && my <= startBtn.y + startBtn.h)) {
-     step();
+      step();
 
      // Delete the start button after clicking it
      startBtn = {};
@@ -322,12 +326,29 @@ Paddle.prototype.move = function(x, y) {
          pointsC = 0;
 
          step();
-
-
          over = 0;
      }
    }
  }
+
+// var finalCountdown = function(){
+//   var i = 5;
+//   var int = setInterval(function(){
+//     with(ctx){
+//       font = "80px 'Press Start 2P'";
+//       fillStyle = "#339966";
+//       fillRect(0, 0, cw, ch);
+//       fillStyle = "#fff";
+//       fillText(i, 400, 200 );
+//       fill();
+//     }
+//     i--;
+//     if (i === 1) {
+//       clearInterval(int);
+//       step();
+//     }
+//   }, 1000);
+// };
 
  var update = function(){
    computer.update();

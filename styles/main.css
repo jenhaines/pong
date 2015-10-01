@@ -13,11 +13,13 @@ body {
   padding-right: 30px;
   width: 960px;
   border: 5px solid red;
+  text-align: center;
 }
 header {
   text-align: center;
 }
 .hero {
   padding: 22px 80px 66px 80px;
+  text-align: center;
   /*border: 2px solid red;*/
 }
