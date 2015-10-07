@@ -79,6 +79,9 @@ var startBtn = {
       fillStyle = "white";
       font = "20px 'Press Start 2P'";
       fillText("Start", cw/2, ch/2 );
+      fillText("Want to play some Pong?", 400, 120);
+      fillText("Use right and left arrow", 400, 160);
+      fillText("keys to move paddle!", 400, 200);
     }
   }
 };
@@ -114,6 +117,21 @@ var Court = {
   }
 };
 
+var Net = {
+  x: 400,
+  y: 10,
+  cw: 6,
+  ch: ch - 20,
+  draw: function(){
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(this.x, this.y, this.cw, this.ch);
+  },
+  clear: function(){
+    ctx.fillStyle = "#339966";
+    ctx.fillRect(this.x, this.y, this.cw, this.ch);
+  }
+};
+
 var computer = new Computer();
 var player = new Player();
 var ball = new Ball(400, 300);
@@ -125,7 +143,6 @@ function Paddle(x, y, width, height){
  this.y = y;
  this.width = width;
  this.height = height;
- this.speed = 0;
 }
 
 // Function for updating score
@@ -178,9 +195,9 @@ Paddle.prototype.move = function(x, y) {
   var y_pos = ball.y;
     var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
     if(diff < 0 && diff < -4) { // max speed up
-      diff = -3;
+      diff = -4;
     } else if(diff > 0 && diff > 4) { // max speed down
-      diff = 3;
+      diff = 4;
     }
     this.paddle.move(0,diff);
     if(this.paddle.y < 0) {
@@ -203,14 +220,20 @@ Paddle.prototype.move = function(x, y) {
    }
  };
 
+// Make random y coordinate for serves
+ function randServe(){
+  return Math.floor((Math.random() * (3 + 3)) - 3);
+ };
+
  function Ball(x, y){
    this.x = x;
    this.y = y;
    this.x_speed = 3;
-   this.y_speed = Math.floor((Math.random() * 6) + 1);
+   this.y_speed = randServe();
    this.width = 10;
    this.height = 10;
  }
+
 
  Ball.prototype.render = function(){
   with(ctx){
@@ -251,7 +274,7 @@ Paddle.prototype.move = function(x, y) {
   if (this.x > 800){
     pointsC++;
     this.x_speed = 3;
-    this.y_speed = 2;
+    this.y_speed = randServe();
     this.y = 300;
     this.x = 400;
     if (pointsC == 4) gameOver();
@@ -275,6 +298,7 @@ Paddle.prototype.move = function(x, y) {
  };
 
  function gameOver() {
+   Net.clear();
    ctx.fillStyle = "white";
    ctx.font = "20px 'Press Start 2P";
    ctx.textAlign = "center";
@@ -303,10 +327,10 @@ Paddle.prototype.move = function(x, y) {
  function btnClick(e) {
    // Variables for storing mouse position on click
    var mx = e.pageX - rect.left;
-   var my = e.pageY - rect.top;
+   var my = e.pageY - rect.top + 22;
    // Click start button
    if((mx >= startBtn.x && mx <= startBtn.x + startBtn.w) && (my >= startBtn.y && my <= startBtn.y + startBtn.h)) {
-      step();
+      finalCountdown();
 
      // Delete the start button after clicking it
      startBtn = {};
@@ -320,35 +344,37 @@ Paddle.prototype.move = function(x, y) {
          ball.y = 300;
          points = 0;
          ball.x_speed = 4;
-         ball.y_speed = 3;
+         ball.y_speed = randServe();
          //Reset score
          pointsP = 0;
          pointsC = 0;
 
-         step();
+          // step();
          over = 0;
+
+        finalCountdown();
      }
    }
  }
 
-// var finalCountdown = function(){
-//   var i = 5;
-//   var int = setInterval(function(){
-//     with(ctx){
-//       font = "80px 'Press Start 2P'";
-//       fillStyle = "#339966";
-//       fillRect(0, 0, cw, ch);
-//       fillStyle = "#fff";
-//       fillText(i, 400, 200 );
-//       fill();
-//     }
-//     i--;
-//     if (i === 1) {
-//       clearInterval(int);
-//       step();
-//     }
-//   }, 1000);
-// };
+function finalCountdown(){
+  var i = 3;
+  var int = setInterval(function(){
+    with(ctx){
+      font = "80px 'Press Start 2P'";
+      fillStyle = "#339966";
+      fillRect(0, 0, cw, ch);
+      fillStyle = "#fff";
+      fillText(i, 400, 200 );
+      fill();
+    }
+    i--;
+    if (i < 0) {
+      clearInterval(int);
+      step();
+    }
+  }, 1000);
+};
 
  var update = function(){
    computer.update();
@@ -359,6 +385,7 @@ Paddle.prototype.move = function(x, y) {
 
  var render = function(){
    Court.draw();
+   Net.draw();
    computer.render();
    player.render();
    ball.render();
