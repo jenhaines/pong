@@ -11,5 +11,7 @@ Pong Redux is a clone of the pioneering arcade game from 1972.
 * Collision detection is standard Axis Aligned Bounding Boxes. 
 
 * If the paddle is moving when it hits the ball, speed is added to the ball. The ball will move faster or slower depending on the direction of the ball and the direction of the paddle.
+ 
+[jsFiddle](https://jsfiddle.net/motochick67/1oun71q8/) example
 
 ## Enjoy!
